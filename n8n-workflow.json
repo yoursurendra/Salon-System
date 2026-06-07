@@ -1,0 +1,90 @@
+{
+  "name": "SalonIQ — WhatsApp Automation Workflow",
+  "description": "Alternative to direct integration: use n8n to orchestrate WhatsApp messages, reminders, and marketing triggers",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "type": "n8n-nodes-base.webhook",
+      "name": "WhatsApp Webhook",
+      "typeVersion": 1,
+      "parameters": {
+        "path": "whatsapp-incoming",
+        "method": "POST",
+        "responseMode": "lastNode"
+      },
+      "notes": "Set this webhook URL in Meta's WhatsApp dashboard"
+    },
+    {
+      "id": "extract-message",
+      "type": "n8n-nodes-base.set",
+      "name": "Extract Message Data",
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "phone", "value": "={{ $json.entry[0].changes[0].value.messages[0].from }}" },
+            { "name": "messageText", "value": "={{ $json.entry[0].changes[0].value.messages[0].text?.body?.toLowerCase() }}" },
+            { "name": "messageType", "value": "={{ $json.entry[0].changes[0].value.messages[0].type }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "forward-to-backend",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Forward to Backend Bot",
+      "parameters": {
+        "url": "=http://localhost:3000/webhook",
+        "method": "POST",
+        "body": "={{ $json }}",
+        "headers": { "Content-Type": "application/json" }
+      },
+      "notes": "Your Node.js backend handles the actual bot logic"
+    },
+    {
+      "id": "schedule-reminder",
+      "type": "n8n-nodes-base.cron",
+      "name": "Every 15 Minutes — Check Reminders",
+      "parameters": {
+        "cronExpression": "*/15 * * * *",
+        "timezone": "Asia/Kolkata"
+      }
+    },
+    {
+      "id": "fetch-upcoming-bookings",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Fetch Upcoming Bookings",
+      "parameters": {
+        "url": "http://localhost:3000/api/bookings",
+        "method": "GET",
+        "headers": { "x-admin-key": "your_admin_key" }
+      }
+    },
+    {
+      "id": "marketing-trigger",
+      "type": "n8n-nodes-base.cron",
+      "name": "Daily 11AM — Marketing Campaign",
+      "parameters": {
+        "cronExpression": "0 11 * * *",
+        "timezone": "Asia/Kolkata"
+      }
+    },
+    {
+      "id": "fetch-inactive-customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "name": "Trigger Marketing Service",
+      "parameters": {
+        "url": "http://localhost:3000/api/marketing/run",
+        "method": "POST",
+        "headers": { "x-admin-key": "your_admin_key" }
+      }
+    }
+  ],
+  "connections": {
+    "WhatsApp Webhook": { "main": [[{ "node": "Extract Message Data", "type": "main", "index": 0 }]] },
+    "Extract Message Data": { "main": [[{ "node": "Forward to Backend Bot", "type": "main", "index": 0 }]] },
+    "Every 15 Minutes — Check Reminders": { "main": [[{ "node": "Fetch Upcoming Bookings", "type": "main", "index": 0 }]] },
+    "Daily 11AM — Marketing Campaign": { "main": [[{ "node": "Trigger Marketing Service", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "timezone": "Asia/Kolkata" },
+  "notes": "Import this JSON into n8n (n8n.io) as an alternative automation layer. The backend still handles bot logic — n8n just provides visual workflow management and additional triggers."
+}

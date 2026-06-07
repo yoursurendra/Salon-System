@@ -1,0 +1,67 @@
+# =====================================================
+# Docker Compose — SalonIQ Salon Management System
+# =====================================================
+# Usage:
+#   docker-compose up -d
+#   docker-compose logs -f salon-backend
+
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:7
+    container_name: salon-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: salon_db
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - salon-network
+
+  # Node.js Backend
+  salon-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: salon-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/salon_db
+    depends_on:
+      - mongo
+    networks:
+      - salon-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  # Nginx (serves frontend + reverse proxy to backend)
+  nginx:
+    image: nginx:alpine
+    container_name: salon-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./docs/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - salon-backend
+    networks:
+      - salon-network
+
+volumes:
+  mongo_data:
+
+networks:
+  salon-network:
+    driver: bridge
