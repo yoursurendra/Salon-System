@@ -10,10 +10,10 @@ RUN npm ci --only=production
 COPY . .
 
 # Expose port
-EXPOSE 3000
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s \
-  CMD wget --quiet --tries=1 --spider http://localhost:3000/health || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhost:8080/health || exit 1
 
 CMD ["node", "server.js"]
