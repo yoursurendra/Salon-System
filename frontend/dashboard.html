@@ -1669,7 +1669,7 @@ Type <strong>hi</strong> to see our services and book an appointment.</div>
 // CONFIG & STATE
 // ══════════════════════════════════════════
 const CONFIG = {
-  apiUrl: localStorage.getItem('salonApiUrl') || 'http://localhost:3000',
+  apiUrl: window.location.origin,
   adminKey: localStorage.getItem('salonAdminKey') || 'your_super_secret_admin_key_change_this',
   salonName: localStorage.getItem('salonName') || 'SalonIQ Salon',
 };
