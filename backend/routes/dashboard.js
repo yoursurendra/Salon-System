@@ -18,9 +18,14 @@ const TZ = process.env.SALON_TIMEZONE || "Asia/Kolkata";
 // --- Auth Middleware ---
 function requireAdmin(req, res, next) {
   const key = req.headers["x-admin-key"];
+
+  console.log("Header Key:", key);
+  console.log("Env Key:", process.env.ADMIN_SECRET_KEY);
+
   if (key !== process.env.ADMIN_SECRET_KEY) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+
   next();
 }
 
