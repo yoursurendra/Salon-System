@@ -1811,6 +1811,10 @@ function renderTodaySchedule(bookings) {
 function drawRevenueChart(data) {
   const canvas = document.getElementById('revenueChart');
   if (!canvas) return;
+  if (!Array.isArray(data) || data.length === 0) {
+        document.getElementById("totalRevenueLabel").textContent = "Total: ₹0";
+        return;
+    }
   const ctx = canvas.getContext('2d');
   const W = canvas.offsetWidth || 500, H = 180;
   canvas.width = W * window.devicePixelRatio;
