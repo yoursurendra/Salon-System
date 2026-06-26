@@ -1,0 +1,2433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SalonIQ — Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ══════════════════════════════════════════
+     DESIGN SYSTEM — Warm Saffron + Deep Umber
+     Inspired by Indian salon aesthetics
+  ══════════════════════════════════════════ */
+  :root {
+    --saffron:      #E8873A;
+    --saffron-light:#F5A660;
+    --saffron-dim:  #3D2210;
+    --gold:         #D4A843;
+    --cream:        #FDF6EC;
+    --bg-deep:      #12100E;
+    --bg-panel:     #1C1915;
+    --bg-card:      #231F1B;
+    --bg-hover:     #2E2822;
+    --border:       #3A332B;
+    --border-soft:  #2A241E;
+    --text-primary: #F0E8DC;
+    --text-muted:   #8A7D6E;
+    --text-dim:     #5A4F44;
+    --green:        #4CAF7D;
+    --green-dim:    #1A3326;
+    --red:          #E05252;
+    --red-dim:      #3A1A1A;
+    --blue:         #5B9BD5;
+    --blue-dim:     #1A2A3A;
+    --shadow:       0 4px 24px rgba(0,0,0,0.4);
+    --radius:       12px;
+    --radius-sm:    8px;
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body:    'DM Sans', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { font-size: 15px; scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Layout ── */
+  .app { display: flex; min-height: 100vh; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    transition: transform .3s ease;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .logo-mark {
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--saffron);
+    letter-spacing: 0.02em;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark .scissors { font-size: 1.3rem; }
+
+  .logo-sub {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-top: 4px;
+    padding-left: 2px;
+  }
+
+  .salon-name-display {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .salon-badge {
+    background: var(--saffron-dim);
+    border: 1px solid var(--saffron);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    color: var(--saffron-light);
+    font-weight: 500;
+  }
+
+  .salon-badge .dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 7px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  nav { padding: 16px 0; flex: 1; }
+
+  .nav-section {
+    padding: 0 16px 4px;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 4px;
+    margin-top: 12px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    margin: 2px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    font-weight: 400;
+    transition: all .18s ease;
+    border: 1px solid transparent;
+    user-select: none;
+  }
+
+  .nav-item:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+
+  .nav-item.active {
+    background: var(--saffron-dim);
+    color: var(--saffron-light);
+    border-color: rgba(232,135,58,0.3);
+    font-weight: 500;
+  }
+
+  .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border-soft);
+  }
+
+  .api-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-dim);
+  }
+  .status-dot.ok { background: var(--green); }
+  .status-dot.err { background: var(--red); }
+
+  /* ── Main Content ── */
+  .main {
+    margin-left: 240px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Topbar ── */
+  .topbar {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+  }
+
+  .topbar-actions { display: flex; align-items: center; gap: 12px; }
+
+  .btn {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: none;
+    transition: all .18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    background: var(--saffron);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--saffron-light); transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+  .btn-danger {
+    background: var(--red-dim);
+    color: var(--red);
+    border: 1px solid rgba(224,82,82,0.3);
+  }
+  .btn-danger:hover { background: #4a1c1c; }
+
+  .btn-sm { padding: 5px 10px; font-size: 0.76rem; }
+
+  .btn-success {
+    background: var(--green-dim);
+    color: var(--green);
+    border: 1px solid rgba(76,175,125,0.3);
+  }
+
+  /* ── Date/Time display ── */
+  .live-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── Content Area ── */
+  .content {
+    padding: 28px 32px;
+    flex: 1;
+    animation: fadeUp .4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Stats Grid ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: border-color .2s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp .4s ease both;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent-color, var(--saffron));
+    opacity: 0.7;
+  }
+
+  .stat-card:hover { border-color: var(--border-soft); background: var(--bg-hover); }
+
+  .stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .stat-icon {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 1.6rem;
+    opacity: 0.15;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+    animation: fadeUp .4s ease both;
+  }
+
+  .card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border-soft);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-body { padding: 20px 22px; }
+
+  /* ── Two Column Layout ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .two-col-wide { display: grid; grid-template-columns: 3fr 2fr; gap: 20px; }
+
+  /* ── Schedule / Table ── */
+  .schedule-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .appointment-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    transition: all .15s ease;
+  }
+
+  .appointment-item:hover { background: var(--bg-hover); border-color: var(--border); }
+
+  .appt-time {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.82rem;
+    color: var(--saffron);
+    font-weight: 600;
+    min-width: 60px;
+    font-family: var(--font-body);
+  }
+
+  .appt-divider { width: 1px; height: 32px; background: var(--border); }
+
+  .appt-info { flex: 1; min-width: 0; }
+
+  .appt-name {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .appt-service {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .appt-price {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gold);
+    min-width: 50px;
+    text-align: right;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .badge-green  { background: var(--green-dim);  color: var(--green); }
+  .badge-red    { background: var(--red-dim);    color: var(--red);   }
+  .badge-gold   { background: #2E2612;            color: var(--gold);  }
+  .badge-blue   { background: var(--blue-dim);   color: var(--blue);  }
+  .badge-muted  { background: var(--bg-hover);   color: var(--text-muted); }
+
+  /* ── Revenue Chart ── */
+  .chart-wrap { position: relative; height: 180px; }
+  canvas#revenueChart { width: 100% !important; height: 180px !important; }
+
+  /* ── Reviews ── */
+  .review-item {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .review-item:last-child { border-bottom: none; }
+
+  .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+
+  .reviewer-name { font-size: 0.88rem; font-weight: 500; color: var(--text-primary); }
+
+  .stars { color: var(--gold); font-size: 0.85rem; letter-spacing: 1px; }
+
+  .review-service { font-size: 0.74rem; color: var(--text-muted); margin-bottom: 8px; }
+
+  .ai-reply-box {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-soft);
+    border-left: 2px solid var(--saffron);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 6px;
+  }
+
+  .ai-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--saffron);
+    font-style: normal;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 3px;
+  }
+
+  /* ── Services Management ── */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+
+  .service-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    transition: all .18s ease;
+    position: relative;
+  }
+
+  .service-card:hover { border-color: var(--saffron); background: var(--bg-hover); }
+
+  .service-emoji { font-size: 2rem; margin-bottom: 10px; display: block; }
+
+  .service-name {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .service-price {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 4px;
+  }
+
+  .service-meta {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .service-actions { display: flex; gap: 8px; }
+
+  /* ── Form Elements ── */
+  .form-group { margin-bottom: 16px; }
+
+  label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    transition: border-color .15s;
+    outline: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--saffron);
+    background: var(--bg-hover);
+  }
+
+  input::placeholder { color: var(--text-dim); }
+
+  select option { background: var(--bg-panel); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ── Modal ── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    animation: modalIn .25s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-header {
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid var(--border-soft);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all .15s;
+  }
+
+  .modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+  .modal-body { padding: 22px 24px; }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-soft);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  /* ── Customers Table ── */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+  }
+
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--bg-panel);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border-soft);
+    color: var(--text-primary);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tbody tr {
+    transition: background .12s;
+    cursor: pointer;
+  }
+
+  tbody tr:hover { background: var(--bg-hover); }
+
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--saffron-dim);
+    border: 1px solid var(--saffron);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--saffron-light);
+    flex-shrink: 0;
+  }
+
+  .customer-cell { display: flex; align-items: center; gap: 10px; }
+
+  /* ── Search Bar ── */
+  .search-bar {
+    position: relative;
+    max-width: 320px;
+  }
+
+  .search-bar input { padding-left: 36px; }
+
+  .search-icon {
+    position: absolute;
+    left: 11px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+
+  /* ── Empty State ── */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-dim);
+  }
+
+  .empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 0.88rem; }
+
+  /* ── Loading Skeleton ── */
+  .skeleton {
+    background: linear-gradient(90deg, var(--bg-panel) 25%, var(--bg-hover) 50%, var(--bg-panel) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+    height: 14px;
+    margin-bottom: 8px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── Toast ── */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 0.84rem;
+    color: var(--text-primary);
+    box-shadow: var(--shadow);
+    animation: toastIn .3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 240px;
+    max-width: 340px;
+  }
+
+  .toast.success { border-left: 3px solid var(--green); }
+  .toast.error   { border-left: 3px solid var(--red);   }
+  .toast.info    { border-left: 3px solid var(--saffron); }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── WhatsApp Simulator Panel ── */
+  .wa-sim {
+    background: #0d1117;
+    border: 1px solid #1a2332;
+    border-radius: var(--radius);
+    overflow: hidden;
+    max-width: 380px;
+  }
+
+  .wa-header {
+    background: #1f6b47;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .wa-avatar { width: 32px; height: 32px; background: #25d366; border-radius: 50%; display:flex; align-items:center; justify-content:center; font-size: 1rem; }
+
+  .wa-body {
+    padding: 16px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #0b1928;
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm1 1v38h38V1H1z' fill='%23ffffff05'/%3E%3C/svg%3E");
+  }
+
+  .wa-msg {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .wa-bubble {
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    max-width: 85%;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .wa-bubble.bot {
+    background: #1e2f24;
+    color: #e0e0e0;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+  }
+
+  .wa-bubble.user {
+    background: #1d4b31;
+    color: #e0e0e0;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+  }
+
+  .wa-input-bar {
+    padding: 10px;
+    background: #1a1a2e;
+    display: flex;
+    gap: 8px;
+  }
+
+  .wa-input {
+    flex: 1;
+    background: #2a2a3e;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 14px;
+    color: #e0e0e0;
+    font-size: 0.8rem;
+    outline: none;
+  }
+
+  .wa-send {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #25d366;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+
+  .wa-send:hover { background: #1ea855; }
+
+  .wa-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .wa-btn {
+    background: #1a3a28;
+    border: 1px solid #25d36633;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #25d366;
+    font-size: 0.78rem;
+    cursor: pointer;
+    text-align: center;
+    transition: background .15s;
+  }
+
+  .wa-btn:hover { background: #1e4530; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col, .two-col-wide { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .content { padding: 16px; }
+    .topbar { padding: 0 16px; }
+  }
+
+  /* ── Setup Guide ── */
+  .setup-step {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .setup-step:last-child { border-bottom: none; }
+
+  .step-num {
+    width: 28px; height: 28px;
+    background: var(--saffron-dim);
+    border: 1px solid var(--saffron);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--saffron);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-content h4 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .step-content p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+
+  .code-block {
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    color: var(--saffron-light);
+    margin-top: 8px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  /* Top filter bar */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .date-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 2px;
+  }
+
+  .date-nav button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    transition: all .15s;
+  }
+
+  .date-nav button:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .date-nav .date-label { font-size: 0.82rem; color: var(--text-primary); padding: 0 8px; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ═══════ SIDEBAR ═══════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <span class="scissors">💈</span> SalonIQ
+      </div>
+      <div class="logo-sub">Salon Management System</div>
+    </div>
+
+    <div class="salon-name-display">
+      <div class="salon-badge">
+        <span class="dot"></span>
+        <span id="salonNameBadge">Loading...</span>
+      </div>
+    </div>
+
+    <nav>
+      <div class="nav-section">Main</div>
+      <div class="nav-item active" onclick="navigate('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="navigate('bookings')">
+        <span class="nav-icon">📅</span> Bookings
+      </div>
+      <div class="nav-item" onclick="navigate('customers')">
+        <span class="nav-icon">👥</span> Customers
+      </div>
+
+      <div class="nav-section">Management</div>
+      <div class="nav-item" onclick="navigate('services')">
+        <span class="nav-icon">✂️</span> Services
+      </div>
+      <div class="nav-item" onclick="navigate('reviews')">
+        <span class="nav-icon">⭐</span> Reviews
+      </div>
+      <div class="nav-item" onclick="navigate('simulator')">
+        <span class="nav-icon">💬</span> Bot Simulator
+      </div>
+
+      <div class="nav-section">Setup</div>
+      <div class="nav-item" onclick="navigate('setup')">
+        <span class="nav-icon">🔧</span> Setup Guide
+      </div>
+      <div class="nav-item" onclick="navigate('settings')">
+        <span class="nav-icon">⚙️</span> Settings
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="api-status">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Checking API...</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════ MAIN ═══════ -->
+  <main class="main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="page-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="live-time" id="liveTime">--:--:--</div>
+        <button class="btn btn-primary" onclick="openModal('addBookingModal')">
+          + New Booking
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ═══════════════════════════════════
+           PAGE: DASHBOARD
+      ════════════════════════════════════ -->
+      <div class="page active" id="page-dashboard">
+
+        <!-- Stats Row -->
+        <div class="stats-grid">
+          <div class="stat-card" style="--accent-color: var(--saffron)">
+            <div class="stat-icon">📅</div>
+            <div class="stat-label">Today's Bookings</div>
+            <div class="stat-value" id="statTodayBookings">—</div>
+            <div class="stat-sub" id="statTodayDate">Loading...</div>
+          </div>
+          <div class="stat-card" style="--accent-color: var(--gold)">
+            <div class="stat-icon">💰</div>
+            <div class="stat-label">Today's Revenue</div>
+            <div class="stat-value" id="statTodayRevenue">—</div>
+            <div class="stat-sub" id="statMonthRevenue">This month: —</div>
+          </div>
+          <div class="stat-card" style="--accent-color: var(--green)">
+            <div class="stat-icon">👥</div>
+            <div class="stat-label">Total Customers</div>
+            <div class="stat-value" id="statCustomers">—</div>
+            <div class="stat-sub">In database</div>
+          </div>
+          <div class="stat-card" style="--accent-color: var(--blue)">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-label">Avg Rating</div>
+            <div class="stat-value" id="statRating">—</div>
+            <div class="stat-sub" id="statReviews">Total reviews: —</div>
+          </div>
+        </div>
+
+        <!-- Revenue Chart + Today Schedule -->
+        <div class="two-col-wide">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📈 Revenue (Last 30 Days)</div>
+              <div style="font-size:0.78rem;color:var(--text-muted)" id="totalRevenueLabel"></div>
+            </div>
+            <div class="card-body">
+              <div class="chart-wrap">
+                <canvas id="revenueChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🗓 Today's Schedule</div>
+              <button class="btn btn-ghost btn-sm" onclick="navigate('bookings')">View All →</button>
+            </div>
+            <div class="card-body" style="padding-top:12px">
+              <div class="schedule-list" id="todayScheduleList">
+                <div class="skeleton" style="height:48px;border-radius:8px"></div>
+                <div class="skeleton" style="height:48px;border-radius:8px"></div>
+                <div class="skeleton" style="height:48px;border-radius:8px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Reviews -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⭐ Recent Customer Reviews</div>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('reviews')">View All →</button>
+          </div>
+          <div class="card-body" id="recentReviewsContainer">
+            <div class="skeleton"></div>
+            <div class="skeleton" style="width:60%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           PAGE: BOOKINGS
+      ════════════════════════════════════ -->
+      <div class="page" id="page-bookings">
+        <div class="filter-bar">
+          <div class="date-nav">
+            <button onclick="changeDate(-1)">‹</button>
+            <span class="date-label" id="bookingDateLabel">Today</span>
+            <button onclick="changeDate(1)">›</button>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="setToday()">Today</button>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <select id="statusFilter" onchange="loadBookings()" style="width:140px">
+              <option value="">All Status</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="openModal('addBookingModal')">+ Add Booking</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📋 Appointment List</div>
+            <div style="font-size:0.8rem;color:var(--text-muted)" id="bookingCount">Loading...</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Customer</th>
+                  <th>Service</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="bookingsTableBody">
+                <tr><td colspan="6"><div class="skeleton"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           PAGE: CUSTOMERS
+      ════════════════════════════════════ -->
+      <div class="page" id="page-customers">
+        <div class="filter-bar">
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="customerSearch" placeholder="Search by name or phone..." oninput="debounceSearch()">
+          </div>
+          <div style="margin-left:auto;font-size:0.8rem;color:var(--text-muted)" id="customerCount"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">👥 Customer Database</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>Visits</th>
+                  <th>Total Spent</th>
+                  <th>Last Visit</th>
+                  <th>Tags</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="customersTableBody">
+                <tr><td colspan="7"><div class="skeleton"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           PAGE: SERVICES
+      ════════════════════════════════════ -->
+      <div class="page" id="page-services">
+        <div class="filter-bar">
+          <h2 style="font-family:var(--font-display);font-size:1.1rem;color:var(--text-muted)">Manage salon services shown in the WhatsApp bot menu</h2>
+          <button class="btn btn-primary" style="margin-left:auto" onclick="openModal('addServiceModal')">+ Add Service</button>
+        </div>
+
+        <div class="services-grid" id="servicesGrid">
+          <div class="skeleton" style="height:150px;border-radius:12px"></div>
+          <div class="skeleton" style="height:150px;border-radius:12px"></div>
+          <div class="skeleton" style="height:150px;border-radius:12px"></div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           PAGE: REVIEWS
+      ════════════════════════════════════ -->
+      <div class="page" id="page-reviews">
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">⭐ All Customer Reviews</div>
+              </div>
+              <div class="card-body" id="allReviewsContainer">
+                <div class="skeleton"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📊 Rating Summary</div>
+              </div>
+              <div class="card-body" id="ratingsSummary">
+                <div class="skeleton"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           PAGE: BOT SIMULATOR
+      ════════════════════════════════════ -->
+      <div class="page" id="page-simulator">
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">💬 WhatsApp Bot Simulator</div>
+              </div>
+              <div class="card-body" style="padding:0">
+                <div class="wa-sim">
+                  <div class="wa-header">
+                    <div class="wa-avatar">💈</div>
+                    <div>
+                      <div style="font-size:0.9rem;font-weight:600" id="simSalonName">SalonIQ Bot</div>
+                      <div style="font-size:0.72rem;opacity:0.8">online</div>
+                    </div>
+                  </div>
+                  <div class="wa-body" id="simMessages">
+                    <div class="wa-msg">
+                      <div class="wa-bubble bot">🙏 Namaste! Welcome to <strong id="simSalonNameBubble">SalonIQ</strong>!
+
+Type <strong>hi</strong> to see our services and book an appointment.</div>
+                    </div>
+                  </div>
+                  <div class="wa-input-bar">
+                    <input type="text" class="wa-input" id="simInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendSimMessage()">
+                    <button class="wa-send" onclick="sendSimMessage()">➤</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📋 Conversation Flow</div>
+              </div>
+              <div class="card-body">
+                <div style="display:flex;flex-direction:column;gap:12px;font-size:0.82rem">
+                  <div style="padding:10px;background:var(--bg-panel);border-radius:8px;border-left:2px solid var(--saffron)">
+                    <strong style="color:var(--saffron)">Step 1</strong> — Customer says "hi" or "book"<br>
+                    <span style="color:var(--text-muted)">Bot shows service menu list</span>
+                  </div>
+                  <div style="padding:10px;background:var(--bg-panel);border-radius:8px;border-left:2px solid var(--gold)">
+                    <strong style="color:var(--gold)">Step 2</strong> — Customer selects service<br>
+                    <span style="color:var(--text-muted)">Bot asks Today or Tomorrow</span>
+                  </div>
+                  <div style="padding:10px;background:var(--bg-panel);border-radius:8px;border-left:2px solid var(--green)">
+                    <strong style="color:var(--green)">Step 3</strong> — Customer picks date<br>
+                    <span style="color:var(--text-muted)">Bot shows available time slots</span>
+                  </div>
+                  <div style="padding:10px;background:var(--bg-panel);border-radius:8px;border-left:2px solid var(--blue)">
+                    <strong style="color:var(--blue)">Step 4</strong> — Customer picks slot<br>
+                    <span style="color:var(--text-muted)">Bot shows booking summary for confirm</span>
+                  </div>
+                  <div style="padding:10px;background:var(--bg-panel);border-radius:8px;border-left:2px solid var(--saffron)">
+                    <strong style="color:var(--saffron)">Step 5</strong> — Customer confirms<br>
+                    <span style="color:var(--text-muted)">Booking saved, confirmation sent</span>
+                  </div>
+                  <div style="padding:10px;background:var(--bg-panel);border-radius:8px;border-left:2px solid var(--text-dim)">
+                    <strong style="color:var(--text-muted)">Auto</strong> — 2 hrs before: Reminder<br>
+                    <strong style="color:var(--text-muted)">Auto</strong> — 9 PM: Review request<br>
+                    <strong style="color:var(--text-muted)">Auto</strong> — 30 days: Re-engagement offer
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">⚡ Quick Test Commands</div>
+              </div>
+              <div class="card-body">
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <button class="btn btn-ghost btn-sm" onclick="quickSend('hi')">Say Hi</button>
+                  <button class="btn btn-ghost btn-sm" onclick="quickSend('book')">Book</button>
+                  <button class="btn btn-ghost btn-sm" onclick="quickSend('cancel')">Cancel</button>
+                  <button class="btn btn-ghost btn-sm" onclick="quickSend('menu')">Menu</button>
+                  <button class="btn btn-ghost btn-sm" onclick="clearSim()">🗑 Clear Chat</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           PAGE: SETUP GUIDE
+      ════════════════════════════════════ -->
+      <div class="page" id="page-setup">
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🚀 Quick Setup Guide</div>
+              </div>
+              <div class="card-body">
+                <div class="setup-step">
+                  <div class="step-num">1</div>
+                  <div class="step-content">
+                    <h4>Install & Configure Backend</h4>
+                    <p>Clone the project, install dependencies, and configure your <code style="color:var(--saffron)">.env</code> file.</p>
+                    <div class="code-block">cd salon-system/backend<br>npm install<br>cp .env.example .env</div>
+                  </div>
+                </div>
+                <div class="setup-step">
+                  <div class="step-num">2</div>
+                  <div class="step-content">
+                    <h4>Set Up MongoDB Database</h4>
+                    <p>Create a free cluster on <strong>MongoDB Atlas</strong> (atlas.mongodb.com) and paste your connection string in <code style="color:var(--saffron)">MONGODB_URI</code>.</p>
+                    <div class="code-block">npm run seed  # Load sample data</div>
+                  </div>
+                </div>
+                <div class="setup-step">
+                  <div class="step-num">3</div>
+                  <div class="step-content">
+                    <h4>Create WhatsApp Business App</h4>
+                    <p>Go to <strong>developers.facebook.com</strong> → Create App → Add WhatsApp product. Get your Phone Number ID and Token.</p>
+                  </div>
+                </div>
+                <div class="setup-step">
+                  <div class="step-num">4</div>
+                  <div class="step-content">
+                    <h4>Expose Local Server (Dev Mode)</h4>
+                    <p>Install ngrok and expose port 3000 for webhook testing.</p>
+                    <div class="code-block">ngrok http 3000</div>
+                  </div>
+                </div>
+                <div class="setup-step">
+                  <div class="step-num">5</div>
+                  <div class="step-content">
+                    <h4>Register Webhook in Meta Dashboard</h4>
+                    <p>Callback URL: <code style="color:var(--saffron)">https://YOUR-NGROK-URL/webhook</code><br>
+                    Verify Token: same as your <code style="color:var(--saffron)">WHATSAPP_VERIFY_TOKEN</code></p>
+                  </div>
+                </div>
+                <div class="setup-step">
+                  <div class="step-num">6</div>
+                  <div class="step-content">
+                    <h4>Start Server & Test</h4>
+                    <p>Start your server and send "hi" to your WhatsApp Business number!</p>
+                    <div class="code-block">npm run dev</div>
+                  </div>
+                </div>
+                <div class="setup-step">
+                  <div class="step-num">7</div>
+                  <div class="step-content">
+                    <h4>Deploy to Production</h4>
+                    <p>Deploy on <strong>Railway</strong>, <strong>Render</strong>, or <strong>DigitalOcean</strong>. Update webhook URL in Meta dashboard. Set all env vars on the platform.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">💼 Sell to Salon Owners</div>
+              </div>
+              <div class="card-body">
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <div style="padding:14px;background:var(--bg-panel);border-radius:10px">
+                    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--saffron);margin-bottom:6px">Starter Plan</div>
+                    <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--text-primary)">₹1,999<span style="font-size:0.9rem;color:var(--text-muted)">/month</span></div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px;line-height:1.6">✓ WhatsApp booking bot<br>✓ Automatic reminders<br>✓ Basic dashboard</div>
+                  </div>
+                  <div style="padding:14px;background:var(--saffron-dim);border:1px solid var(--saffron);border-radius:10px">
+                    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--saffron);margin-bottom:6px">Growth Plan ⭐ Popular</div>
+                    <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--text-primary)">₹3,499<span style="font-size:0.9rem;color:var(--text-muted)">/month</span></div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px;line-height:1.6">✓ Everything in Starter<br>✓ Marketing automation<br>✓ Review collection<br>✓ AI smart replies</div>
+                  </div>
+                  <div style="padding:14px;background:var(--bg-panel);border-radius:10px">
+                    <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--gold);margin-bottom:6px">Premium Plan</div>
+                    <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--text-primary)">₹5,999<span style="font-size:0.9rem;color:var(--text-muted)">/month</span></div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-top:6px;line-height:1.6">✓ Everything in Growth<br>✓ Custom branding<br>✓ Priority support<br>✓ Multiple staff slots</div>
+                  </div>
+                  <div style="padding:12px;background:var(--bg-panel);border-radius:10px;border:1px dashed var(--border)">
+                    <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.6">💡 <strong style="color:var(--text-primary)">Setup Fee:</strong> ₹5,000 one-time<br>Covers domain, hosting, WhatsApp API onboarding</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">🎯 Sales Pitch Points</div>
+              </div>
+              <div class="card-body">
+                <div style="display:flex;flex-direction:column;gap:8px;font-size:0.82rem">
+                  <div style="padding:8px 12px;background:var(--bg-panel);border-radius:8px">🤖 <strong style="color:var(--text-primary)">Bot works 24/7</strong> — Even when shop is closed, customers can book</div>
+                  <div style="padding:8px 12px;background:var(--bg-panel);border-radius:8px">📉 <strong style="color:var(--text-primary)">Reduce no-shows by 60%</strong> — Auto WhatsApp reminders</div>
+                  <div style="padding:8px 12px;background:var(--bg-panel);border-radius:8px">💬 <strong style="color:var(--text-primary)">No app to download</strong> — Works on WhatsApp everyone has</div>
+                  <div style="padding:8px 12px;background:var(--bg-panel);border-radius:8px">📣 <strong style="color:var(--text-primary)">Auto re-engage customers</strong> — 30-day inactivity offers</div>
+                  <div style="padding:8px 12px;background:var(--bg-panel);border-radius:8px">📊 <strong style="color:var(--text-primary)">See revenue live</strong> — Dashboard on any device</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           PAGE: SETTINGS
+      ════════════════════════════════════ -->
+      <div class="page" id="page-settings">
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">⚙️ Dashboard Settings</div>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label>API Base URL</label>
+                  <input type="text" id="settingsApiUrl" placeholder="http://localhost:3000">
+                </div>
+                <div class="form-group">
+                  <label>Admin Secret Key</label>
+                  <input type="password" id="settingsAdminKey" placeholder="Your admin key from .env">
+                </div>
+                <div class="form-group">
+                  <label>Salon Name (Display)</label>
+                  <input type="text" id="settingsSalonName" placeholder="Raja's Salon">
+                </div>
+                <div style="display:flex;gap:10px;margin-top:4px">
+                  <button class="btn btn-primary" onclick="saveSettings()">💾 Save & Connect</button>
+                  <button class="btn btn-ghost" onclick="testConnection()">🔌 Test Connection</button>
+                </div>
+                <div id="connectionResult" style="margin-top:12px;font-size:0.82rem;color:var(--text-muted)"></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">📁 System Information</div>
+              </div>
+              <div class="card-body">
+                <div style="display:flex;flex-direction:column;gap:10px;font-size:0.82rem">
+                  <div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-panel);border-radius:8px">
+                    <span style="color:var(--text-muted)">Version</span>
+                    <span>SalonIQ v1.0</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-panel);border-radius:8px">
+                    <span style="color:var(--text-muted)">Backend</span>
+                    <span>Node.js + Express</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-panel);border-radius:8px">
+                    <span style="color:var(--text-muted)">Database</span>
+                    <span>MongoDB</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-panel);border-radius:8px">
+                    <span style="color:var(--text-muted)">Messaging</span>
+                    <span>WhatsApp Cloud API</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-panel);border-radius:8px">
+                    <span style="color:var(--text-muted)">AI</span>
+                    <span>Claude (Anthropic)</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;padding:8px;background:var(--bg-panel);border-radius:8px">
+                    <span style="color:var(--text-muted)">Timezone</span>
+                    <span>Asia/Kolkata (IST)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<!-- ═══════ TOAST CONTAINER ═══════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════ MODALS ═══════ -->
+
+<!-- Add Service Modal -->
+<div class="modal-backdrop" id="addServiceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">✂️ Add New Service</div>
+      <button class="modal-close" onclick="closeModal('addServiceModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Service Name *</label>
+          <input type="text" id="svcName" placeholder="e.g. Haircut">
+        </div>
+        <div class="form-group">
+          <label>Emoji</label>
+          <input type="text" id="svcEmoji" placeholder="✂️" maxlength="2">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price (₹) *</label>
+          <input type="number" id="svcPrice" placeholder="100" min="0">
+        </div>
+        <div class="form-group">
+          <label>Duration (mins) *</label>
+          <input type="number" id="svcDuration" placeholder="30" min="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="svcCategory">
+            <option value="hair">Hair</option>
+            <option value="beard">Beard</option>
+            <option value="skin">Skin</option>
+            <option value="combo">Combo</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Display Order</label>
+          <input type="number" id="svcOrder" placeholder="1" min="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" id="svcDesc" placeholder="Short description...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addServiceModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitService()">Add Service</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Booking Modal -->
+<div class="modal-backdrop" id="addBookingModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📅 New Booking</div>
+      <button class="modal-close" onclick="closeModal('addBookingModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Customer Name *</label>
+        <input type="text" id="bkCustomerName" placeholder="Customer full name">
+      </div>
+      <div class="form-group">
+        <label>Phone Number *</label>
+        <input type="text" id="bkPhone" placeholder="+919876543210">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="date" id="bkDate">
+        </div>
+        <div class="form-group">
+          <label>Time Slot *</label>
+          <select id="bkSlot">
+            <option value="">Select date first</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Service *</label>
+        <select id="bkService">
+          <option value="">Loading services...</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addBookingModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitBooking()">Confirm Booking</button>
+    </div>
+  </div>
+</div>
+
+<!-- Customer History Modal -->
+<div class="modal-backdrop" id="customerHistoryModal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-header">
+      <div class="modal-title" id="customerHistoryTitle">Customer History</div>
+      <button class="modal-close" onclick="closeModal('customerHistoryModal')">✕</button>
+    </div>
+    <div class="modal-body" id="customerHistoryBody">Loading...</div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('customerHistoryModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG & STATE
+// ══════════════════════════════════════════
+const CONFIG = {
+  apiUrl: window.location.origin,
+  adminKey: localStorage.getItem('salonAdminKey') || 'your_super_secret_admin_key_change_this',
+  salonName: localStorage.getItem('salonName') || 'SalonIQ Salon',
+};
+
+let currentPage = 'dashboard';
+let currentBookingDate = new Date().toISOString().split('T')[0];
+let allServices = [];
+let searchTimer = null;
+
+// ══════════════════════════════════════════
+// API HELPERS
+// ══════════════════════════════════════════
+async function api(path, options = {}) {
+  const url = `${CONFIG.apiUrl}${path}`;
+  const res = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-key': CONFIG.adminKey,
+      ...options.headers,
+    },
+    ...options,
+  });
+  if (!res.ok) throw new Error(`API Error: ${res.status}`);
+  return res.json();
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const pageEl = document.getElementById(`page-${page}`);
+  if (pageEl) { pageEl.classList.add('active'); pageEl.style.animation = 'none'; void pageEl.offsetHeight; pageEl.style.animation = ''; }
+
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(page.replace('-', ' '))) n.classList.add('active');
+  });
+
+  const titles = { dashboard:'Dashboard', bookings:'Bookings', customers:'Customers', services:'Services', reviews:'Reviews', simulator:'Bot Simulator', setup:'Setup Guide', settings:'Settings' };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+  currentPage = page;
+
+  if (page === 'dashboard') loadDashboard();
+  else if (page === 'bookings') loadBookings();
+  else if (page === 'customers') loadCustomers();
+  else if (page === 'services') loadServices();
+  else if (page === 'reviews') loadReviews();
+  else if (page === 'settings') loadSettings();
+  else if (page === 'simulator') loadSimulator();
+}
+
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+async function loadDashboard() {
+  try {
+    const [overview, revenue] = await Promise.all([
+      api('/api/dashboard/overview'),
+      api('/api/dashboard/revenue?days=30'),
+    ]);
+
+    // Stats
+    document.getElementById('statTodayBookings').textContent = overview.today.count;
+    document.getElementById('statTodayDate').textContent = formatDateDisplay(overview.today.date);
+    document.getElementById('statTodayRevenue').textContent = `₹${overview.today.revenue.toLocaleString('en-IN')}`;
+    document.getElementById('statMonthRevenue').textContent = `This month: ₹${overview.monthly.revenue.toLocaleString('en-IN')}`;
+    document.getElementById('statCustomers').textContent = overview.customers.total;
+    document.getElementById('statRating').textContent = overview.reviews.average ? `${overview.reviews.average}★` : '—';
+    document.getElementById('statReviews').textContent = `Total reviews: ${overview.reviews.total}`;
+
+    // Today's schedule
+    renderTodaySchedule(overview.today.bookings);
+
+    // Revenue chart
+    drawRevenueChart(revenue);
+
+    // Load reviews
+    loadRecentReviews();
+  } catch (err) {
+    console.log('Dashboard load failed (using demo data):', err.message);
+    loadDashboardDemo();
+  }
+}
+
+function loadDashboardDemo() {
+  document.getElementById('statTodayBookings').textContent = '8';
+  document.getElementById('statTodayDate').textContent = formatDateDisplay(new Date().toISOString().split('T')[0]);
+  document.getElementById('statTodayRevenue').textContent = '₹1,200';
+  document.getElementById('statMonthRevenue').textContent = 'This month: ₹28,400';
+  document.getElementById('statCustomers').textContent = '142';
+  document.getElementById('statRating').textContent = '4.7★';
+  document.getElementById('statReviews').textContent = 'Total reviews: 56';
+
+  const demoBookings = [
+    { timeSlot:'09:00', customer:{name:'Rahul Sharma'}, service:{name:'Haircut',emoji:'✂️'}, pricePaid:100, status:'confirmed' },
+    { timeSlot:'10:00', customer:{name:'Vijay Singh'}, service:{name:'Facial',emoji:'🧖'}, pricePaid:250, status:'confirmed' },
+    { timeSlot:'11:30', customer:{name:'Amit Kumar'}, service:{name:'Beard Trim',emoji:'🪒'}, pricePaid:60, status:'confirmed' },
+    { timeSlot:'14:00', customer:{name:'Suresh Patel'}, service:{name:'Hair + Beard',emoji:'💈'}, pricePaid:150, status:'confirmed' },
+    { timeSlot:'15:30', customer:{name:'Deepak Verma'}, service:{name:'Haircut',emoji:'✂️'}, pricePaid:100, status:'completed' },
+  ];
+  renderTodaySchedule(demoBookings);
+
+  const demoRevenue = Array.from({length:30}, (_,i) => ({
+    date: new Date(Date.now() - (29-i)*86400000).toISOString().split('T')[0],
+    revenue: Math.floor(Math.random()*1200 + 400),
+    bookings: Math.floor(Math.random()*8 + 2),
+  }));
+  drawRevenueChart(demoRevenue);
+
+  const demoReviews = [
+    { customer:{name:'Rahul Sharma'}, rating:5, booking:{service:{name:'Haircut'}}, aiReplySuggestion:'Thank you so much, Rahul ji! Your kind words truly motivate us.', createdAt: new Date() },
+    { customer:{name:'Vijay Singh'}, rating:4, booking:{service:{name:'Facial'}}, aiReplySuggestion:'We appreciate your feedback, Vijay ji! See you soon.', createdAt: new Date() },
+  ];
+  renderRecentReviews(demoReviews);
+}
+
+function renderTodaySchedule(bookings) {
+  const el = document.getElementById('todayScheduleList');
+  if (!bookings || !bookings.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📅</div><p>No bookings today yet</p></div>`;
+    return;
+  }
+  el.innerHTML = bookings.map(b => `
+    <div class="appointment-item">
+      <div class="appt-time">${formatTime(b.timeSlot)}</div>
+      <div class="appt-divider"></div>
+      <div class="appt-info">
+        <div class="appt-name">${b.customer?.name || 'Unknown'}</div>
+        <div class="appt-service">${b.service?.emoji || '✂️'} ${b.service?.name || 'Service'}</div>
+      </div>
+      <div class="appt-price">₹${b.pricePaid || b.service?.price || 0}</div>
+      <span class="badge ${b.status === 'confirmed' ? 'badge-green' : b.status === 'completed' ? 'badge-blue' : 'badge-muted'}">${b.status}</span>
+    </div>
+  `).join('');
+}
+
+function drawRevenueChart(data) {
+  const canvas = document.getElementById('revenueChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 500, H = 180;
+  canvas.width = W * window.devicePixelRatio;
+  canvas.height = H * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  const vals = data.map(d => d.revenue);
+  const max = Math.max(...vals, 1);
+  const pad = { t:20, r:10, b:28, l:50 };
+  const W2 = W - pad.l - pad.r, H2 = H - pad.t - pad.b;
+
+  // Grid lines
+  ctx.strokeStyle = '#2A241E'; ctx.lineWidth = 1;
+  [0,.25,.5,.75,1].forEach(r => {
+    const y = pad.t + H2 * (1-r);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W-pad.r, y); ctx.stroke();
+    ctx.fillStyle = '#5A4F44'; ctx.font = '10px DM Sans,sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(`₹${Math.round(max*r/100)*100}`, pad.l-6, y+3);
+  });
+
+  const pts = data.map((d,i) => [pad.l + (i/(data.length-1||1))*W2, pad.t + H2*(1-d.revenue/max)]);
+
+  // Area fill
+  const grad = ctx.createLinearGradient(0, pad.t, 0, H-pad.b);
+  grad.addColorStop(0, 'rgba(232,135,58,0.3)');
+  grad.addColorStop(1, 'rgba(232,135,58,0)');
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], H-pad.b);
+  pts.forEach(([x,y]) => ctx.lineTo(x, y));
+  ctx.lineTo(pts[pts.length-1][0], H-pad.b);
+  ctx.fillStyle = grad; ctx.fill();
+
+  // Line
+  ctx.beginPath(); ctx.strokeStyle = '#E8873A'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+  pts.forEach(([x,y],i) => i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y));
+  ctx.stroke();
+
+  // Dots
+  pts.forEach(([x,y],i) => {
+    if (i % Math.max(1,Math.floor(data.length/8)) !== 0 && i !== data.length-1) return;
+    ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI*2);
+    ctx.fillStyle = '#E8873A'; ctx.fill();
+    ctx.strokeStyle = '#12100E'; ctx.lineWidth = 1.5; ctx.stroke();
+  });
+
+  // X-axis labels
+  ctx.fillStyle = '#5A4F44'; ctx.font = '9px DM Sans,sans-serif'; ctx.textAlign = 'center';
+  data.forEach((d,i) => {
+    if (i % Math.max(1,Math.floor(data.length/6)) !== 0) return;
+    const x = pad.l + (i/(data.length-1||1))*W2;
+    ctx.fillText(d.date.slice(5), x, H-pad.b+14);
+  });
+
+  const total = vals.reduce((a,b)=>a+b,0);
+  document.getElementById('totalRevenueLabel').textContent = `Total: ₹${total.toLocaleString('en-IN')}`;
+}
+
+async function loadRecentReviews() {
+  try {
+    const reviews = await api('/api/dashboard/recent-reviews');
+    renderRecentReviews(reviews.slice(0, 5));
+  } catch { /* demo already loaded */ }
+}
+
+function renderRecentReviews(reviews) {
+  const el = document.getElementById('recentReviewsContainer');
+  if (!reviews.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">⭐</div><p>No reviews yet</p></div>'; return; }
+  el.innerHTML = reviews.map(r => `
+    <div class="review-item">
+      <div class="review-header">
+        <div class="reviewer-name">${r.customer?.name || 'Customer'}</div>
+        <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+      </div>
+      <div class="review-service">📋 ${r.booking?.service?.name || 'Service'} · ${timeAgo(r.createdAt)}</div>
+      ${r.aiReplySuggestion ? `<div class="ai-reply-box"><span class="ai-label">✨ AI Reply Suggestion</span>${r.aiReplySuggestion}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════
+// BOOKINGS PAGE
+// ══════════════════════════════════════════
+function changeDate(delta) {
+  const d = new Date(currentBookingDate);
+  d.setDate(d.getDate() + delta);
+  currentBookingDate = d.toISOString().split('T')[0];
+  document.getElementById('bookingDateLabel').textContent = formatDateDisplay(currentBookingDate);
+  loadBookings();
+}
+
+function setToday() {
+  currentBookingDate = new Date().toISOString().split('T')[0];
+  document.getElementById('bookingDateLabel').textContent = 'Today';
+  loadBookings();
+}
+
+async function loadBookings() {
+  const status = document.getElementById('statusFilter')?.value || '';
+  const tbody = document.getElementById('bookingsTableBody');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-dim);padding:20px">Loading...</td></tr>';
+
+  try {
+    let url = `/api/bookings?date=${currentBookingDate}`;
+    if (status) url += `&status=${status}`;
+    const bookings = await api(url);
+    document.getElementById('bookingCount').textContent = `${bookings.length} appointments`;
+    tbody.innerHTML = bookings.length ? bookings.map(b => `
+      <tr>
+        <td><strong style="color:var(--saffron)">${formatTime(b.timeSlot)}</strong></td>
+        <td><div class="customer-cell">
+          <div class="avatar">${(b.customer?.name||'?')[0]}</div>
+          <div>
+            <div>${b.customer?.name || '—'}</div>
+            <div style="font-size:0.74rem;color:var(--text-muted)">${b.customer?.phone||''}</div>
+          </div>
+        </div></td>
+        <td>${b.service?.emoji||''} ${b.service?.name||'—'}</td>
+        <td style="color:var(--gold);font-family:var(--font-display)">₹${b.pricePaid||b.service?.price||0}</td>
+        <td><span class="badge ${statusBadge(b.status)}">${b.status}</span></td>
+        <td>
+          <select onchange="updateStatus('${b._id}',this.value)" style="width:auto;padding:4px 8px;font-size:0.75rem">
+            <option>Change...</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="no_show">No Show</option>
+          </select>
+        </td>
+      </tr>
+    `).join('') : `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text-dim)">No bookings found for this date</td></tr>`;
+  } catch (err) {
+    document.getElementById('bookingCount').textContent = 'API offline — showing demo';
+    tbody.innerHTML = `
+      <tr><td><strong style="color:var(--saffron)">9:00 AM</strong></td><td><div class="customer-cell"><div class="avatar">R</div><div>Rahul Sharma<div style="font-size:0.74rem;color:var(--text-muted)">+91 98765 43201</div></div></div></td><td>✂️ Haircut</td><td style="color:var(--gold);font-family:var(--font-display)">₹100</td><td><span class="badge badge-green">confirmed</span></td><td>—</td></tr>
+      <tr><td><strong style="color:var(--saffron)">10:00 AM</strong></td><td><div class="customer-cell"><div class="avatar">V</div><div>Vijay Singh<div style="font-size:0.74rem;color:var(--text-muted)">+91 98765 43203</div></div></div></td><td>💈 Hair + Beard</td><td style="color:var(--gold);font-family:var(--font-display)">₹150</td><td><span class="badge badge-green">confirmed</span></td><td>—</td></tr>
+      <tr><td><strong style="color:var(--saffron)">11:30 AM</strong></td><td><div class="customer-cell"><div class="avatar">S</div><div>Suresh Patel<div style="font-size:0.74rem;color:var(--text-muted)">+91 98765 43205</div></div></div></td><td>🧖 Facial</td><td style="color:var(--gold);font-family:var(--font-display)">₹250</td><td><span class="badge badge-blue">completed</span></td><td>—</td></tr>
+    `;
+  }
+}
+
+async function updateStatus(id, status) {
+  if (!status || status === 'Change...') return;
+  try {
+    await api(`/api/bookings/${id}/status`, { method:'PUT', body: JSON.stringify({status}) });
+    toast('Status updated', 'success');
+    loadBookings();
+  } catch { toast('Failed to update status', 'error'); }
+}
+
+// ══════════════════════════════════════════
+// CUSTOMERS PAGE
+// ══════════════════════════════════════════
+function debounceSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(loadCustomers, 400);
+}
+
+async function loadCustomers() {
+  const search = document.getElementById('customerSearch')?.value || '';
+  const tbody = document.getElementById('customersTableBody');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text-dim)">Loading...</td></tr>';
+  try {
+    const data = await api(`/api/customers?search=${search}&limit=50`);
+    document.getElementById('customerCount').textContent = `${data.total} customers`;
+    tbody.innerHTML = data.customers.length ? data.customers.map(c => `
+      <tr onclick="viewCustomerHistory('${c._id}','${c.name}')">
+        <td><div class="customer-cell"><div class="avatar">${(c.name||'?')[0].toUpperCase()}</div><div>${c.name}</div></div></td>
+        <td style="color:var(--text-muted);font-size:0.82rem">${c.phone}</td>
+        <td style="text-align:center">${c.totalVisits}</td>
+        <td style="color:var(--gold);font-family:var(--font-display)">₹${(c.totalSpent||0).toLocaleString('en-IN')}</td>
+        <td style="font-size:0.8rem;color:var(--text-muted)">${c.lastVisitDate ? timeAgo(c.lastVisitDate) : 'Never'}</td>
+        <td>${(c.tags||[]).map(t=>`<span class="badge badge-gold">${t}</span>`).join(' ')}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();viewCustomerHistory('${c._id}','${c.name}')">History →</button></td>
+      </tr>
+    `).join('') : `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-dim)">No customers found</td></tr>`;
+  } catch (err) {
+    document.getElementById('customerCount').textContent = 'API offline — demo data';
+    tbody.innerHTML = `
+      <tr><td><div class="customer-cell"><div class="avatar">R</div><div>Rahul Sharma</div></div></td><td style="color:var(--text-muted)">+91 98765 43201</td><td style="text-align:center">8</td><td style="color:var(--gold);font-family:var(--font-display)">₹1,200</td><td style="font-size:0.8rem;color:var(--text-muted)">5 days ago</td><td></td><td>—</td></tr>
+      <tr><td><div class="customer-cell"><div class="avatar">V</div><div>Vijay Singh</div></div></td><td style="color:var(--text-muted)">+91 98765 43203</td><td style="text-align:center">12</td><td style="color:var(--gold);font-family:var(--font-display)">₹1,800</td><td style="font-size:0.8rem;color:var(--text-muted)">2 days ago</td><td><span class="badge badge-gold">vip</span></td><td>—</td></tr>
+      <tr><td><div class="customer-cell"><div class="avatar">A</div><div>Amit Kumar</div></div></td><td style="color:var(--text-muted)">+91 98765 43202</td><td style="text-align:center">3</td><td style="color:var(--gold);font-family:var(--font-display)">₹450</td><td style="font-size:0.8rem;color:var(--text-muted)">35 days ago</td><td></td><td>—</td></tr>
+    `;
+  }
+}
+
+async function viewCustomerHistory(id, name) {
+  openModal('customerHistoryModal');
+  document.getElementById('customerHistoryTitle').textContent = `📋 ${name}'s History`;
+  document.getElementById('customerHistoryBody').innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
+  try {
+    const history = await api(`/api/customers/${id}/history`);
+    document.getElementById('customerHistoryBody').innerHTML = history.length ? `
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${history.slice(0,10).map(b => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--bg-panel);border-radius:8px">
+            <div>
+              <div style="font-size:0.88rem;font-weight:500">${b.service?.emoji||''} ${b.service?.name||'Service'}</div>
+              <div style="font-size:0.76rem;color:var(--text-muted)">${b.date} · ${formatTime(b.timeSlot)}</div>
+            </div>
+            <div>
+              <div style="color:var(--gold);font-family:var(--font-display)">₹${b.pricePaid||0}</div>
+              <span class="badge ${statusBadge(b.status)}" style="float:right;margin-top:4px">${b.status}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    ` : '<div class="empty-state"><p>No booking history found</p></div>';
+  } catch { document.getElementById('customerHistoryBody').innerHTML = '<p style="color:var(--text-muted)">Could not load history (API offline)</p>'; }
+}
+
+// ══════════════════════════════════════════
+// SERVICES PAGE
+// ══════════════════════════════════════════
+async function loadServices() {
+  const grid = document.getElementById('servicesGrid');
+  try {
+    allServices = await api('/api/services?all=true');
+    renderServicesGrid(allServices);
+  } catch {
+    allServices = [
+      {_id:'1',name:'Haircut',emoji:'✂️',price:100,durationMinutes:30,category:'hair',isActive:true},
+      {_id:'2',name:'Beard Trim',emoji:'🪒',price:60,durationMinutes:20,category:'beard',isActive:true},
+      {_id:'3',name:'Facial',emoji:'🧖',price:250,durationMinutes:45,category:'skin',isActive:true},
+      {_id:'4',name:'Hair + Beard',emoji:'💈',price:150,durationMinutes:45,category:'combo',isActive:true},
+      {_id:'5',name:'Head Massage',emoji:'💆',price:80,durationMinutes:20,category:'hair',isActive:true},
+      {_id:'6',name:'Shave',emoji:'🪒',price:50,durationMinutes:15,category:'beard',isActive:true},
+      {_id:'7',name:'Hair Color',emoji:'🎨',price:400,durationMinutes:60,category:'hair',isActive:true},
+      {_id:'8',name:'D-tan',emoji:'✨',price:200,durationMinutes:30,category:'skin',isActive:true},
+    ];
+    renderServicesGrid(allServices);
+    toast('API offline — showing demo services', 'info');
+  }
+}
+
+function renderServicesGrid(services) {
+  document.getElementById('servicesGrid').innerHTML = services.map(s => `
+    <div class="service-card" style="${!s.isActive?'opacity:0.5':''}">
+      <span class="service-emoji">${s.emoji}</span>
+      <div class="service-name">${s.name}</div>
+      <div class="service-price">₹${s.price}</div>
+      <div class="service-meta">⏱ ${s.durationMinutes} mins · ${s.category} · ${s.isActive?'<span style="color:var(--green)">Active</span>':'<span style="color:var(--text-dim)">Hidden</span>'}</div>
+      <div class="service-actions">
+        <button class="btn btn-ghost btn-sm" onclick="toggleService('${s._id}',${!s.isActive})">${s.isActive?'Hide':'Show'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteService('${s._id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function submitService() {
+  const name = document.getElementById('svcName').value.trim();
+  const price = parseInt(document.getElementById('svcPrice').value);
+  const duration = parseInt(document.getElementById('svcDuration').value);
+  if (!name || !price || !duration) { toast('Please fill all required fields', 'error'); return; }
+
+  const payload = {
+    name, price, durationMinutes: duration,
+    emoji: document.getElementById('svcEmoji').value || '✂️',
+    description: document.getElementById('svcDesc').value,
+    category: document.getElementById('svcCategory').value,
+    displayOrder: parseInt(document.getElementById('svcOrder').value) || 99,
+  };
+
+  try {
+    await api('/api/services', { method:'POST', body: JSON.stringify(payload) });
+    toast('Service added successfully!', 'success');
+    closeModal('addServiceModal');
+    loadServices();
+  } catch { toast('Failed to add service (API offline)', 'error'); }
+}
+
+async function toggleService(id, active) {
+  try {
+    await api(`/api/services/${id}`, { method:'PUT', body: JSON.stringify({isActive:active}) });
+    toast(`Service ${active?'shown':'hidden'}`, 'success');
+    loadServices();
+  } catch { toast('Failed (API offline)', 'error'); }
+}
+
+async function deleteService(id) {
+  if (!confirm('Hide this service from the WhatsApp menu?')) return;
+  try {
+    await api(`/api/services/${id}`, { method:'DELETE' });
+    toast('Service removed', 'success');
+    loadServices();
+  } catch { toast('Failed (API offline)', 'error'); }
+}
+
+// ══════════════════════════════════════════
+// REVIEWS PAGE
+// ══════════════════════════════════════════
+async function loadReviews() {
+  try {
+    const reviews = await api('/api/dashboard/recent-reviews');
+    renderAllReviews(reviews);
+    renderRatingsSummary(reviews);
+  } catch {
+    const demo = [
+      {customer:{name:'Rahul Sharma'},rating:5,booking:{service:{name:'Haircut'}},aiReplySuggestion:'Thank you so much, Rahul ji! Your 5-star review motivates our entire team! 🙏',createdAt:new Date()},
+      {customer:{name:'Vijay Singh'},rating:4,booking:{service:{name:'Facial'}},aiReplySuggestion:'Thank you Vijay ji! We\'re glad you had a great experience at our salon.',createdAt:new Date(Date.now()-86400000)},
+      {customer:{name:'Suresh Patel'},rating:5,booking:{service:{name:'Beard Trim'}},aiReplySuggestion:'Shukriya, Suresh ji! We look forward to serving you again soon.',createdAt:new Date(Date.now()-172800000)},
+    ];
+    renderAllReviews(demo);
+    renderRatingsSummary(demo);
+  }
+}
+
+function renderAllReviews(reviews) {
+  document.getElementById('allReviewsContainer').innerHTML = reviews.map(r => `
+    <div class="review-item">
+      <div class="review-header">
+        <div class="reviewer-name">${r.customer?.name||'Customer'}</div>
+        <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+      </div>
+      <div class="review-service">📋 ${r.booking?.service?.name||'Service'} · ${timeAgo(r.createdAt)}</div>
+      ${r.aiReplySuggestion ? `<div class="ai-reply-box"><span class="ai-label">✨ AI Reply Suggestion</span>${r.aiReplySuggestion}<br><button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="toast('Reply sent! (demo)','success')">Send Reply</button></div>` : ''}
+    </div>
+  `).join('');
+}
+
+function renderRatingsSummary(reviews) {
+  const counts = [5,4,3,2,1].map(r => ({ star:r, count: reviews.filter(rv=>rv.rating===r).length }));
+  const total = reviews.length;
+  const avg = total ? (reviews.reduce((s,r)=>s+r.rating,0)/total).toFixed(1) : 0;
+  document.getElementById('ratingsSummary').innerHTML = `
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-family:var(--font-display);font-size:3rem;font-weight:700;color:var(--gold)">${avg}</div>
+      <div style="color:var(--gold);font-size:1.2rem">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5-Math.round(avg))}</div>
+      <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px">${total} reviews</div>
+    </div>
+    ${counts.map(({star,count}) => `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="color:var(--gold);font-size:0.85rem;min-width:30px">${star}★</span>
+        <div style="flex:1;height:8px;background:var(--bg-panel);border-radius:4px;overflow:hidden">
+          <div style="height:100%;width:${total?Math.round(count/total*100):0}%;background:var(--gold);border-radius:4px;transition:width 1s ease"></div>
+        </div>
+        <span style="font-size:0.78rem;color:var(--text-muted);min-width:20px">${count}</span>
+      </div>
+    `).join('')}
+  `;
+}
+
+// ══════════════════════════════════════════
+// BOT SIMULATOR
+// ══════════════════════════════════════════
+let simState = 'idle';
+let simServices = [];
+let simPending = {};
+
+function loadSimulator() {
+  document.getElementById('simSalonName').textContent = CONFIG.salonName;
+  document.getElementById('simSalonNameBubble').textContent = CONFIG.salonName;
+  simServices = allServices.filter(s=>s.isActive) || [];
+  if (!simServices.length) simServices = [
+    {_id:'1',name:'Haircut',emoji:'✂️',price:100,durationMinutes:30},
+    {_id:'2',name:'Beard Trim',emoji:'🪒',price:60,durationMinutes:20},
+    {_id:'3',name:'Facial',emoji:'🧖',price:250,durationMinutes:45},
+  ];
+}
+
+function quickSend(msg) { document.getElementById('simInput').value = msg; sendSimMessage(); }
+function clearSim() { document.getElementById('simMessages').innerHTML = ''; simState = 'idle'; simPending = {}; }
+
+function sendSimMessage() {
+  const input = document.getElementById('simInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addWaBubble(msg, 'user');
+  setTimeout(() => processSimMessage(msg.toLowerCase()), 600);
+}
+
+function addWaBubble(text, type) {
+  const container = document.getElementById('simMessages');
+  const div = document.createElement('div');
+  div.className = 'wa-msg';
+  div.innerHTML = `<div class="wa-bubble ${type}">${text.replace(/\*(.*?)\*/g,'<strong>$1</strong>')}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addWaButtons(text, buttons) {
+  const container = document.getElementById('simMessages');
+  const div = document.createElement('div');
+  div.className = 'wa-msg';
+  div.innerHTML = `
+    <div class="wa-bubble bot">${text.replace(/\*(.*?)\*/g,'<strong>$1</strong>')}</div>
+    <div class="wa-buttons">${buttons.map(b=>`<div class="wa-btn" onclick="quickSend('${b.id}')">${b.label}</div>`).join('')}</div>
+  `;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function processSimMessage(msg) {
+  if (msg === 'hi' || msg === 'hello' || msg === 'book' || msg === 'menu' || msg === 'namaste') {
+    simState = 'selecting_service'; simPending = {};
+    const serviceList = simServices.map((s,i)=>`${i+1}. ${s.emoji} *${s.name}* — ₹${s.price} (${s.durationMinutes} mins)`).join('\n');
+    addWaButtons(
+      `🙏 *Namaste! Welcome to ${CONFIG.salonName}!*\n\nPlease select a service:\n\n${serviceList}`,
+      simServices.slice(0,3).map((s,i)=>({id:String(i+1),label:`${s.emoji} ${s.name}`}))
+    );
+    return;
+  }
+
+  if (simState === 'selecting_service') {
+    const idx = parseInt(msg) - 1;
+    if (!isNaN(idx) && idx >= 0 && idx < simServices.length) {
+      simPending.service = simServices[idx];
+      simState = 'selecting_date';
+      const today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+      const tomorrow = new Date(Date.now()+86400000).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+      addWaButtons(
+        `✂️ *${simPending.service.name}* selected!\n💰 Price: ₹${simPending.service.price}\n\n📅 Choose appointment date:`,
+        [{id:'today',label:`📅 Today (${today})`},{id:'tomorrow',label:`📅 Tomorrow (${tomorrow})`}]
+      );
+      return;
+    }
+  }
+
+  if (simState === 'selecting_date' && (msg==='today'||msg==='tomorrow')) {
+    simPending.date = msg === 'today' ? 'Today' : 'Tomorrow';
+    simState = 'selecting_slot';
+    const slots = ['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','2:00 PM','3:00 PM','4:00 PM'];
+    addWaButtons(
+      `📅 Date: *${simPending.date}*\n✂️ Service: *${simPending.service.name}*\n\nSelect your time:`,
+      slots.slice(0,3).map(s=>({id:s,label:s}))
+    );
+    return;
+  }
+
+  if (simState === 'selecting_slot' && msg.includes(':')) {
+    simPending.slot = msg;
+    simState = 'confirming';
+    addWaButtons(
+      `📋 *Booking Summary*\n\n✂️ Service: *${simPending.service?.name}*\n📅 Date: *${simPending.date}*\n⏰ Time: *${msg}*\n💰 Price: *₹${simPending.service?.price}*\n\nShall we confirm?`,
+      [{id:'confirm',label:'✅ Yes, Confirm!'},{id:'cancel',label:'❌ Cancel'}]
+    );
+    return;
+  }
+
+  if (simState === 'confirming') {
+    if (msg === 'confirm') {
+      simState = 'idle'; simPending = {};
+      addWaBubble(
+        `✅ *Booking Confirmed!*\n\n🙏 Your appointment is booked!\n\n━━━━━━━━━━━━\n✂️ ${simPending.service?.name || 'Service'}\n📅 ${simPending.date || 'Today'}\n⏰ ${simPending.slot || '10:00 AM'}\n💰 ₹${simPending.service?.price || 100}\n━━━━━━━━━━━━\n\nSee you soon! We'll remind you 2 hours before ⏰`, 'bot'
+      );
+      return;
+    }
+    if (msg === 'cancel') {
+      simState = 'idle';
+      addWaBubble('❌ Booking cancelled. Type *BOOK* anytime to start again.', 'bot');
+      return;
+    }
+  }
+
+  if (msg === 'cancel') {
+    simState = 'idle';
+    addWaBubble('✅ Your upcoming booking has been cancelled.\n\nType *BOOK* to make a new appointment. 🙏', 'bot');
+    return;
+  }
+
+  // Default
+  addWaBubble(`🙏 Welcome to *${CONFIG.salonName}*!\n\nType *BOOK* to make an appointment or *MENU* to see our services.`, 'bot');
+}
+
+// ══════════════════════════════════════════
+// SUBMIT BOOKING (Manual)
+// ══════════════════════════════════════════
+async function submitBooking() {
+  toast('Manual booking creation requires live API connection', 'info');
+  closeModal('addBookingModal');
+}
+
+// ══════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════
+function loadSettings() {
+  document.getElementById('settingsApiUrl').value = CONFIG.apiUrl;
+  document.getElementById('settingsAdminKey').value = CONFIG.adminKey;
+  document.getElementById('settingsSalonName').value = CONFIG.salonName;
+}
+
+function saveSettings() {
+  CONFIG.apiUrl = document.getElementById('settingsApiUrl').value.trim().replace(/\/$/, '');
+  CONFIG.adminKey = document.getElementById('settingsAdminKey').value.trim();
+  CONFIG.salonName = document.getElementById('settingsSalonName').value.trim() || 'SalonIQ';
+  localStorage.setItem('salonApiUrl', CONFIG.apiUrl);
+  localStorage.setItem('salonAdminKey', CONFIG.adminKey);
+  localStorage.setItem('salonName', CONFIG.salonName);
+  document.getElementById('salonNameBadge').textContent = CONFIG.salonName;
+  toast('Settings saved! Testing connection...', 'success');
+  testConnection();
+}
+
+async function testConnection() {
+  const resultEl = document.getElementById('connectionResult');
+  if (resultEl) resultEl.textContent = 'Testing...';
+  try {
+    const res = await fetch(`${CONFIG.apiUrl}/health`);
+    const data = await res.json();
+    if (resultEl) resultEl.innerHTML = `<span style="color:var(--green)">✅ Connected! Salon: ${data.salon}</span>`;
+    document.getElementById('statusDot').className = 'status-dot ok';
+    document.getElementById('statusText').textContent = 'API Online';
+    document.getElementById('salonNameBadge').textContent = data.salon || CONFIG.salonName;
+    toast('Connected to API!', 'success');
+  } catch (err) {
+    if (resultEl) resultEl.innerHTML = `<span style="color:var(--red)">❌ Cannot connect to ${CONFIG.apiUrl}</span>`;
+    document.getElementById('statusDot').className = 'status-dot err';
+    document.getElementById('statusText').textContent = 'API Offline (Demo)';
+    toast('API offline — dashboard running in demo mode', 'info');
+  }
+}
+
+// ══════════════════════════════════════════
+// MODAL HELPERS
+// ══════════════════════════════════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'addBookingModal') populateBookingModal();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function populateBookingModal() {
+  const svcSelect = document.getElementById('bkService');
+  svcSelect.innerHTML = allServices.length
+    ? allServices.filter(s=>s.isActive).map(s=>`<option value="${s._id}">${s.emoji} ${s.name} — ₹${s.price}</option>`).join('')
+    : '<option>Load services first</option>';
+
+  const dateInput = document.getElementById('bkDate');
+  dateInput.value = new Date().toISOString().split('T')[0];
+  dateInput.min = new Date().toISOString().split('T')[0];
+  dateInput.onchange = loadSlotsForModal;
+  loadSlotsForModal();
+}
+
+async function loadSlotsForModal() {
+  const date = document.getElementById('bkDate').value;
+  const slotSelect = document.getElementById('bkSlot');
+  try {
+    const {slots} = await api(`/api/bookings/slots?date=${date}&duration=30`);
+    slotSelect.innerHTML = slots.length
+      ? slots.map(s=>`<option value="${s}">${formatTime(s)}</option>`).join('')
+      : '<option>No slots available</option>';
+  } catch {
+    slotSelect.innerHTML = ['09:00','09:30','10:00','10:30','11:00','14:00','15:00'].map(s=>`<option value="${s}">${formatTime(s)}</option>`).join('');
+  }
+}
+
+// Close modals on backdrop click
+document.querySelectorAll('.modal-backdrop').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════
+// TOAST NOTIFICATIONS
+// ══════════════════════════════════════════
+function toast(msg, type = 'info') {
+  const icons = { success:'✅', error:'❌', info:'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]}</span> ${msg}`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ══════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════
+function formatTime(slot) {
+  if (!slot) return '';
+  const [h, m] = slot.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hr = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${hr}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+function formatDateDisplay(dateStr) {
+  if (!dateStr) return '';
+  const today = new Date().toISOString().split('T')[0];
+  const tom = new Date(Date.now()+86400000).toISOString().split('T')[0];
+  if (dateStr === today) return 'Today';
+  if (dateStr === tom) return 'Tomorrow';
+  return new Date(dateStr).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'});
+}
+
+function timeAgo(date) {
+  const secs = Math.floor((Date.now() - new Date(date)) / 1000);
+  if (secs < 60) return 'just now';
+  if (secs < 3600) return `${Math.floor(secs/60)}m ago`;
+  if (secs < 86400) return `${Math.floor(secs/3600)}h ago`;
+  return `${Math.floor(secs/86400)}d ago`;
+}
+
+function statusBadge(status) {
+  return { confirmed:'badge-green', completed:'badge-blue', cancelled:'badge-red', no_show:'badge-muted', pending:'badge-gold' }[status] || 'badge-muted';
+}
+
+// Live clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('liveTime').textContent = now.toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour12:true});
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+window.addEventListener('load', () => {
+  document.getElementById('bookingDateLabel').textContent = formatDateDisplay(currentBookingDate) || 'Today';
+  document.getElementById('salonNameBadge').textContent = CONFIG.salonName;
+  testConnection();
+  loadDashboard();
+});
+</script>
+</body>
+</html>
