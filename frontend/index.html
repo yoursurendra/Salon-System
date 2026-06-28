@@ -2280,9 +2280,25 @@ function processSimMessage(msg) {
 // SUBMIT BOOKING (Manual)
 // ══════════════════════════════════════════
 async function submitBooking() {
-  toast('Manual booking creation requires live API connection', 'info');
-  closeModal('addBookingModal');
-}
+  // ── Read form fields ──────────────────────────────────────────
+  const customerName = document.getElementById('bkCustomerName').value.trim();
+  const phone        = document.getElementById('bkPhone').value.trim();
+  const date         = document.getElementById('bkDate').value;
+  const timeSlot     = document.getElementById('bkSlot').value;
+  const serviceId    = document.getElementById('bkService').value;
+ 
+  // ── Client-side validation ────────────────────────────────────
+  if (!customerName) { toast('Customer name is required', 'error'); return; }
+  if (!phone)        { toast('Phone number is required',  'error'); return; }
+  if (!date)         { toast('Date is required',          'error'); return; }
+  if (!timeSlot)     { toast('Please select a time slot', 'error'); return; }
+  if (!serviceId)    { toast('Please select a service',   'error'); return; }
+ 
+  // Basic phone check: must start with + and have digits
+  if (!/^\+\d{7,15}$/.test(phone.replace(/\s/g, ''))) {
+    toast('Phone must include country code, e.g. +919876543210', 'error');
+    return;
+  }
 
 // ══════════════════════════════════════════
 // SETTINGS
